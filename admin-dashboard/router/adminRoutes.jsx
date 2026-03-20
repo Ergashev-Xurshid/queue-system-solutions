@@ -1,11 +1,9 @@
-import {HashRouter, Routes ,Route} from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import AdminLayout from "../src/layouts/AdminLayout";
 
 import OperatorsList from "../src/pages/operators/Operators";
 import AddOperator from "../src/pages/operators/AddOperator";
-import Reports from "../src/pages/reports/Reports";
-import DailyReport from "../src/pages/reports/DailyReport";
-import MonthlyReport from "../src/pages/reports/MonthlyReport";
+import Reports from "../src/pages/dashboard/Reports";
 import Dashboard from "../src/pages/dashboard/Dashboard";
 import LoginPage from "../src/pages/LoginPage/LoginPage";
 import Category from "../src/pages/category/Category";
@@ -13,6 +11,7 @@ import ProtectedRoute from "../src/components/ProtectedRoute";
 import MenuList from "../src/pages/menuPage/menuList";
 import SubCategoryTable from "../src/pages/subCategory/SubCategoryTable";
 import Devices from "../src/pages/devices/Devices";
+import OperatorReports from "../src/pages/reports/OperatorReports";
 
 export const router = (setAdmin, admin) => (
   <HashRouter>
@@ -32,9 +31,7 @@ export const router = (setAdmin, admin) => (
         <Route index element={<Dashboard />} />
         <Route path="operators" element={<OperatorsList />} />
         <Route path="operators/add" element={<AddOperator />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="reports/daily" element={<DailyReport />} />
-        <Route path="reports/monthly" element={<MonthlyReport />} />
+        <Route path="reports" element={<OperatorReports />} />
         <Route path="menu" element={<MenuList />} />
         <Route path="category" element={<Category />} />
         <Route path="sub-category" element={<SubCategoryTable />} />
@@ -42,4 +39,4 @@ export const router = (setAdmin, admin) => (
       </Route>
     </Routes>
   </HashRouter>
-  )
+);

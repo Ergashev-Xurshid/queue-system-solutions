@@ -53,7 +53,7 @@ export default function CategoryLayout() {
             "Content-Type": "application/json",
             Authorization: token ? `Bearer ${token}` : "",
           },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -68,16 +68,27 @@ export default function CategoryLayout() {
       const body = data.body;
 
       // ✅ Agar sub-category mavjud bo‘lsa (array qaytarilsa)
-      if (Array.isArray(body) && body.length > 0 && data.success === false) {
-        // Sub-category ro'yxati sahifasiga o'tish
+      // if (Array.isArray(body) && body.length > 0 && data.success === false) {
+      //   // Sub-category ro'yxati sahifasiga o'tish
+      //   navigate(`/menu/${menuId}/category/${catId}`, {
+      //     state: { subCategories: body },
+      //   });
+      //   return;
+      // }
+
+      // // ✅ Agar queue object bo‘lsa (print qilish kerak bo‘lsa)
+      // if (body && typeof body === "object" && data.success === true) {
+      //   sendToPrint(body);
+      //   return;
+      // }
+      if (Array.isArray(body) && body.length > 0) {
         navigate(`/menu/${menuId}/category/${catId}`, {
           state: { subCategories: body },
         });
         return;
       }
 
-      // ✅ Agar queue object bo‘lsa (print qilish kerak bo‘lsa)
-      if (body && typeof body === "object" && data.success === true) {
+      if (body && !Array.isArray(body) && typeof body === "object") {
         sendToPrint(body);
         return;
       }
@@ -105,7 +116,7 @@ export default function CategoryLayout() {
         {
           duration: 5000,
           style: { padding: "16px 22px", minWidth: "460px" },
-        }
+        },
       );
     }, 5000);
 
@@ -127,7 +138,7 @@ export default function CategoryLayout() {
             {
               duration: 5000,
               style: { padding: "16px 22px", minWidth: "460px" },
-            }
+            },
           );
         }
 

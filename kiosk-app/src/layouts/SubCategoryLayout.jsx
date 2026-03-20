@@ -173,7 +173,7 @@ export default function SubCategoryLayout() {
 
         <div className="w-full h-[1300px] overflow-y-scroll flex flex-col items-center mt-30">
           {isOnline && (
-            <div className="w-full grid grid-cols-1 gap-6 px-10">
+            <div className="w-full grid grid-cols-1 gap-6 px-10 py-10">
               {loading && <LoaderFunction />}
 
               {subCategores.map((sub) => (

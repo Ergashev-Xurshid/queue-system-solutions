@@ -12,7 +12,7 @@ export default function AdminLayout({ admin }) {
       <div className="flex-1">
         <Navbar setSidebarOpen={setSidebarOpen} admin={admin} />
         <main className="lg:ml-64 h-[calc(100vh-5rem)] bg-gray-50">
-          <div className="h-full p-4 sm:p-6 lg:p-8 overflow-hidden">
+          <div className="h-full p-4 sm:p-6 lg:p-8 overflow-y-scroll">
             <Outlet />
           </div>
         </main>

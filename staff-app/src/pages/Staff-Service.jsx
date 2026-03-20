@@ -7,16 +7,17 @@ import {
   Wifi,
   WifiOff,
   Mail,
+  Unlock,
   Phone,
-  RotateCcw,
 } from "lucide-react";
 import Footer from "./FooterComp";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 
 function StaffServicePage() {
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
   const CURRENT_QUEUE_KEY = "current_operator_queue";
-
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     // Internetni tekshiruvchi funksiya
     const checkInternet = async () => {
@@ -103,7 +104,13 @@ function StaffServicePage() {
   useEffect(() => {
     getUser();
   }, []);
-  //user info end
+
+  // Avtomatik tekshirish mantiqi
+  useEffect(() => {
+    if (user?.password_active) {
+      setOpen(true);
+    }
+  }, [user?.password_active]);
 
   const [navbatlar, setNavbatlar] = useState(null);
 
@@ -216,26 +223,25 @@ function StaffServicePage() {
   const [logout, setLogout] = useState(false);
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
     localStorage.removeItem(CURRENT_QUEUE_KEY);
     navigate("/");
   };
 
-  //queues-waiting
+  //operator-waiting
   const [waiting, setWaiting] = useState([]);
   const getQueuesWaiting = async () => {
     try {
-      const res = await fetch(
-        `https://navbat.kstu.uz/api/queues/waitings/${user.categoryId}`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`https://navbat.kstu.uz/api/operator/waiting`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!res.ok) throw new Error("Status: " + res.status);
 
       const data = await res.json();
-      setWaiting(data.body);
+      setWaiting(data?.body);
     } catch (error) {
       console.error("Waiting queue xatolik:", error);
     }
@@ -275,7 +281,7 @@ function StaffServicePage() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Status: " + res.status);
@@ -297,7 +303,7 @@ function StaffServicePage() {
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="relative w-50" ref={dropdownRef}>
+            <div className="relative w-100" ref={dropdownRef}>
               <div
                 onClick={() => setLogout(!logout)}
                 className="flex items-center gap-4"
@@ -324,26 +330,79 @@ function StaffServicePage() {
                     : "opacity-0 -translate-y-2 pointer-events-none"
                 }`}
               >
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-2 border-b pb-1">
-                    <Mail className="w-4 " />
-                    <p className=" text-slate-600">
-                      {user?.email || "operator@gmail.com"}
-                    </p>
+                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-lg">
+                      {user?.fullName?.[0] || "O"}
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-semibold text-slate-800">
+                        {user?.fullName || "Operator"}
+                      </h2>
+                      <p
+                        className={
+                          user?.active
+                            ? "text-sm text-green-500"
+                            : "text-sm text-red-500"
+                        }
+                      >
+                        {user?.active ? "Faol operator" : "Faol emas"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 border-b pb-1">
-                    <Phone className="w-4 " />
-                    <p className="text-slate-600">
-                      {user?.phoneNumber || "77 777 77 77"}
-                    </p>
+
+                  {/* Info */}
+                  <div className="mt-4 flex flex-col gap-3">
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                      <Mail className="h-4 w-4 text-slate-500" />
+                      <p className="text-sm text-slate-700">
+                        {user?.email || "operator@gmail.com"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                      <Phone className="h-4 w-4 text-slate-500" />
+                      <p className="text-sm text-slate-700">
+                        {user?.phoneNumber || "+998 00 000 00 00"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
+                      <p className="text-sm font-medium text-slate-700 mb-2">
+                        Mening kategoriyalarim:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {user?.categoryNames?.map((item, index) => (
+                          <span
+                            key={index}
+                            className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full px-4 py-2 bg-red-500 text-white rounded-lg
-                 hover:bg-red-600 transition-colors font-medium shadow-lg cursor-pointer"
-                  >
-                    Chiqish
-                  </button>
+
+                  {/* Actions */}
+                  <div className="mt-5 flex flex-col gap-2">
+                    <button
+                      onClick={() => setOpen(true)}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 cursor-pointer"
+                    >
+                      <Unlock className="h-4 w-4" />
+                      Parolni almashtirish
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full rounded-xl bg-red-500 px-4 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-red-600 cursor-pointer"
+                    >
+                      Chiqish
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -555,6 +614,15 @@ function StaffServicePage() {
           </div>
         </div>
       </div>
+      <ChangePasswordModal
+        open={open}
+        onClose={() => setOpen(false)}
+        operatorId={user?.id}
+        password_active={user?.password_active}
+        onSuccess={() => {
+          getUser()
+        }}
+      />
       <Footer />
     </div>
   );

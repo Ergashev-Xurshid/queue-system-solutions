@@ -29,7 +29,6 @@ const [statistics, setStatistics] = useState({
         },
       });
 
-      console.log("Status:", res.status);
 
       if (!res.ok) {
         throw new Error(`Xatolik: ${res.status}`);
@@ -50,10 +49,10 @@ const [statistics, setStatistics] = useState({
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
-          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center">
             <Activity className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </div>
         </div>
@@ -67,7 +66,7 @@ const [statistics, setStatistics] = useState({
 
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
-          <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
             <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
         </div>

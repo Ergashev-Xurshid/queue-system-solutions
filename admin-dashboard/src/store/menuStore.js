@@ -16,7 +16,7 @@ export const useMenuStore = create((set, get) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Status:", res.status);
+  
 
       const data = await res.json();
       // **ID bo‘yicha qat’iy tartiblash**
