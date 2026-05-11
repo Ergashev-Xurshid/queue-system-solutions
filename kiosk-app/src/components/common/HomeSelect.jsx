@@ -4,40 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { useMenuStore } from "../../store/useMenuStore";
 import { useEffect } from "react";
 
-import { toast } from "sonner";
-
 function HomeSelect() {
   const navigate = useNavigate();
-  const { menus, fetchMenus, errorType  } = useMenuStore();
+  const { menus, fetchMenus } = useMenuStore();
   useEffect(() => {
     fetchMenus();
   }, []);
 
-  // website tilini olish
   const { i18n } = useTranslation();
   const propName = `name_${i18n.language}`;
-
-
-
-  useEffect(() => {
-    if (errorType === "UNAUTHORIZED") {
-      navigate("/login", { replace: true });
-    }
-
-    if (errorType === "FORBIDDEN") {
-      navigate("/login", { replace: true });
-    }
-
-    // if (errorType === "OFFLINE") {
-    //   navigate("/", { replace: true });
-    // }
-
-    // if (errorType === "SERVER") {
-    //   navigate("/base-url-setup", { replace: true });
-    // }
-  }, [errorType, navigate]);
-
-
 
   useEffect(() => {
     const handleWheel = (e) => {

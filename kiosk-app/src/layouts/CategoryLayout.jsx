@@ -41,7 +41,7 @@ export default function CategoryLayout() {
     fetchCategores(menuId);
   }, [menuId]);
 
-  const handleCategoryClick = async (catId, cat) => {
+  const handleCategoryClick = async (catId) => {
     const baseURL = getBaseURL();
     const token = getToken();
 
@@ -57,30 +57,13 @@ export default function CategoryLayout() {
       );
 
       if (!res.ok) {
-        console.error("SERVER ERROR → ", res.status);
         toast.error(`Server xatosi: ${res.status}`);
         return;
       }
 
       const data = await res.json();
-      console.log("SERVER RESPONSE =>", data);
-
       const body = data.body;
 
-      // ✅ Agar sub-category mavjud bo‘lsa (array qaytarilsa)
-      // if (Array.isArray(body) && body.length > 0 && data.success === false) {
-      //   // Sub-category ro'yxati sahifasiga o'tish
-      //   navigate(`/menu/${menuId}/category/${catId}`, {
-      //     state: { subCategories: body },
-      //   });
-      //   return;
-      // }
-
-      // // ✅ Agar queue object bo‘lsa (print qilish kerak bo‘lsa)
-      // if (body && typeof body === "object" && data.success === true) {
-      //   sendToPrint(body);
-      //   return;
-      // }
       if (Array.isArray(body) && body.length > 0) {
         navigate(`/menu/${menuId}/category/${catId}`, {
           state: { subCategories: body },
@@ -88,12 +71,13 @@ export default function CategoryLayout() {
         return;
       }
 
-      if (body && !Array.isArray(body) && typeof body === "object") {
+      if (body && typeof body === "object") {
         sendToPrint(body);
         return;
       }
-    } catch (err) {
-      console.error("FETCH ERROR:", err);
+
+      toast.error("Ma'lumot topilmadi");
+    } catch {
       toast.error("Aloqa xatosi!");
     }
   };
@@ -222,7 +206,7 @@ export default function CategoryLayout() {
               {categores?.map((cat) => (
                 <div
                   key={cat.id}
-                  onClick={() => handleCategoryClick(cat.id, cat)}
+                  onClick={() => handleCategoryClick(cat.id)}
                   className="flex items-center justify-center bg-white text-center py-6 px-4 rounded-2xl"
                 >
                   <p className="text-black text-center text-3xl font-semibold">

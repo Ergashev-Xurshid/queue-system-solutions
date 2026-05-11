@@ -4,10 +4,11 @@ export default function PrivateRoute() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  if (!token) return <Navigate to="/" replace />;
-
-  if (role !== "ROLE_OPERATOR") {
-    return <Navigate to="/staff" replace />;
+  if (!token || role !== "ROLE_OPERATOR") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

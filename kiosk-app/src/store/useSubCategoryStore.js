@@ -21,13 +21,7 @@ export const useSubCategoryStore = create((set) => ({
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        set({ errorType: "UNAUTHORIZED" });
-        return;
-      }
-
-      if (res.status === 403) {
+      if (res.status === 401 || res.status === 403) {
         set({ errorType: "FORBIDDEN" });
         return;
       }
@@ -47,10 +41,9 @@ export const useSubCategoryStore = create((set) => ({
 
       set({ subCategores: body });
       return body;
-    } catch (err) {
-      // 🌐 internet yo‘q / serverga ulanib bo‘lmadi
+    } catch {
       set({ errorType: "SERVER" });
-      return []; // MUHIM
+      return [];
     } finally {
       set({ loading: false });
     }

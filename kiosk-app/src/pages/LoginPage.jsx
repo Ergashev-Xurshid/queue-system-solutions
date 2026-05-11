@@ -2,6 +2,7 @@ import { Eye, EyeOff, User, Lock } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { getBaseURL, setToken } from "../utils/api";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,46 +14,55 @@ function LoginPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Agar token mavjud bo'lsa, avtomatik admin panelga yo'naltirish
       navigate("/", { replace: true });
     }
   }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const baseURL = getBaseURL();
+    if (!baseURL) {
+      toast.error("API manzili sozlanmagan!");
+      navigate("/base-url-setup", { replace: true });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // API ga yuboriladigan login ma'lumotlari
-      const bodyData = {
-        email: email,
-        password: password,
-      };
-
-      const response = await fetch("https://navbat.kstu.uz/auth/login", {
+      const response = await fetch(`${baseURL}/auth/login1`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bodyData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
-      // API status = false => xato
-      if (!response.ok || !data?.body) {
-        toast("Login yoki parol noto‘g‘ri!");
-        console.log(`Server javobi xato: ${response.status}`);
+      if (response.status === 401 || response.status === 403) {
+        toast.error("Login yoki parol noto‘g‘ri!");
         setPassword("");
-        setEmail("");
         return;
       }
 
-      // Login muvaffaqiyatli
-      localStorage.setItem("token", data.body.token);
+      if (!response.ok) {
+        toast.error(`Server xatosi: ${response.status}`);
+        return;
+      }
 
-      navigate("/", { replace: true }); // redirect
-    } catch (error) {
-      console.error("Email Error:", error);
-      toast("Server bilan aloqa mavjud emas!");
+      const data = await response.json();
+
+      if (data?.success === false) {
+        toast.error(data?.message || "Kirish taqiqlandi");
+        return;
+      }
+
+      if (!data?.body?.token) {
+        toast.error("Server javobi noto‘g‘ri formatda!");
+        return;
+      }
+
+      setToken(data.body.token);
+      navigate("/", { replace: true });
+    } catch {
+      toast.error("Server bilan aloqa mavjud emas!");
     } finally {
       setIsLoading(false);
     }

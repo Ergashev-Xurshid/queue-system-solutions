@@ -18,13 +18,7 @@ export const useCategoryStore = create((set) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        set({ errorType: "UNAUTHORIZED" });
-        return;
-      }
-
-      if (res.status === 403) {
+      if (res.status === 401 || res.status === 403) {
         set({ errorType: "FORBIDDEN" });
         return;
       }
@@ -41,9 +35,8 @@ export const useCategoryStore = create((set) => ({
 
       const data = await res.json();
       set({ categores: data.body || [] });
-    } catch (error) {
-      // 🌐 internet yo‘q / serverga ulanib bo‘lmadi
-      set({ errorType: "SERVER" }); 
+    } catch {
+      set({ errorType: "SERVER" });
     } finally {
       set({ loading: false });
     }

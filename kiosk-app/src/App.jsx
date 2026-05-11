@@ -8,11 +8,9 @@ import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import BaseURLSetupPage from "./pages/BaseURLSetupPage";
 import useNetworkChecker from "./hooks/useNetworkChecker";
-import { useMenuStore } from "./store/useMenuStore";
 
 export default function App() {
-  const { fetchMenus } = useMenuStore();
-  useNetworkChecker(fetchMenus);
+  useNetworkChecker();
   return (
     <>
       <HashRouter>

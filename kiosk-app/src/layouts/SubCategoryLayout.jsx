@@ -18,8 +18,7 @@ export default function SubCategoryLayout() {
   const navigate = useNavigate();
   const { categoryId } = useParams();
 
-  const { subCategores, fetchSubCategories, loading, error } =
-    useSubCategoryStore();
+  const { subCategores, fetchSubCategories, loading } = useSubCategoryStore();
 
   useEffect(() => {
     fetchSubCategories(categoryId);
@@ -45,24 +44,19 @@ export default function SubCategoryLayout() {
       );
 
       if (!res.ok) {
-        if (res.status === 403) toast.error("Ruxsat yo‘q (403)");
-        else toast.error(`Server xatosi: ${res.status}`);
+        toast.error(`Server xatosi: ${res.status}`);
         return;
       }
 
       const data = await res.json();
-      console.log("SUB RESPONSE:", data);
-
       if (!data.body) {
         toast.error("Ma'lumot topilmadi");
         return;
       }
 
-      // API qaytargan sub queue ma’lumotlari → PRINT ga
       sendSubToPrint(data.body);
-    } catch (err) {
-      console.error(err);
-      toast.error("Aloqa xatosi!", err);
+    } catch {
+      toast.error("Aloqa xatosi!");
     }
   };
 

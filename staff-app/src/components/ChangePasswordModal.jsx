@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { handleUnauthorized } from "../utils/auth";
 
 export default function ChangePasswordModal({
   open,
@@ -17,8 +18,6 @@ export default function ChangePasswordModal({
   const token = localStorage.getItem("token");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -31,8 +30,6 @@ export default function ChangePasswordModal({
         newPassword: "",
         repeatPassword: "",
       });
-      setError("");
-      setSuccess("");
       setLoading(false);
       setShowOld(false);
       setShowNew(false);
@@ -52,23 +49,18 @@ export default function ChangePasswordModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (!form.oldPassword || !form.newPassword || !form.repeatPassword) {
-      setError("Barcha maydonlarni to‘ldiring.");
       toast.error("Barcha maydonlarni to‘ldiring.");
       return;
     }
 
     if (form.newPassword.length < 6) {
-      setError("Yangi parol kamida 6 ta belgidan iborat bo‘lishi kerak.");
       toast.error("Yangi parol kamida 6 ta belgidan iborat bo‘lishi kerak.");
       return;
     }
 
     if (form.newPassword !== form.repeatPassword) {
-      setError("Yangi parollar bir xil emas.");
       toast.error("Yangi parollar bir xil emas.");
       return;
     }
@@ -92,20 +84,23 @@ export default function ChangePasswordModal({
         },
       );
 
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(data?.message || "Parolni almashtirib bo‘lmadi.");
       }
 
-      setSuccess(data?.message || "Parol muvaffaqiyatli almashtirildi.");
       toast.success(data?.message || "Parol muvaffaqiyatli almashtirildi.");
       onSuccess();
       setTimeout(() => {
         onClose();
       }, 1000);
     } catch (err) {
-      setError(err.message || "Xatolik yuz berdi.");
       toast.error(err.message || "Xatolik yuz berdi.");
     } finally {
       setLoading(false);

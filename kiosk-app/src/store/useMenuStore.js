@@ -17,13 +17,7 @@ export const useMenuStore = create((set) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        set({ errorType: "UNAUTHORIZED" });
-        return;
-      }
-
-      if (res.status === 403) {
+      if (res.status === 401 || res.status === 403) {
         set({ errorType: "FORBIDDEN" });
         return;
       }
@@ -40,8 +34,7 @@ export const useMenuStore = create((set) => ({
 
       const data = await res.json();
       set({ menus: data.body });
-    } catch (err) {
-      // 🌐 internet yo‘q / serverga ulanib bo‘lmadi
+    } catch {
       set({ errorType: "SERVER" });
     } finally {
       set({ loading: false });

@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 import Footer from "./FooterComp";
 import ChangePasswordModal from "../components/ChangePasswordModal";
+import { CURRENT_QUEUE_KEY, clearAuth, handleUnauthorized } from "../utils/auth";
 
 function StaffServicePage() {
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
-  const CURRENT_QUEUE_KEY = "current_operator_queue";
   const [open, setOpen] = useState(false);
   useEffect(() => {
     // Internetni tekshiruvchi funksiya
@@ -32,7 +32,7 @@ function StaffServicePage() {
           cache: "no-store",
         });
         setIsOnline(res.ok);
-      } catch (err) {
+      } catch {
         setIsOnline(false);
       }
     };
@@ -92,6 +92,10 @@ function StaffServicePage() {
         },
       });
 
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Status: " + res.status);
 
       const data = await res.json();
@@ -116,20 +120,32 @@ function StaffServicePage() {
 
   // 🔹 Navbatni  chaqirish
   // 10 s da bir
-  const [isCalling, setIsCalling] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [cooldown, setCooldown] = useState(false);
   const [activeButton, setActiveButton] = useState(null);
+  const cooldownIntervalRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownIntervalRef.current) {
+        clearInterval(cooldownIntervalRef.current);
+      }
+    };
+  }, []);
 
   const startCooldown = (buttonType) => {
+    if (cooldownIntervalRef.current) {
+      clearInterval(cooldownIntervalRef.current);
+    }
     setCooldown(true);
-    setActiveButton(buttonType); // "call" yoki "retry"
+    setActiveButton(buttonType);
     setSeconds(10);
 
-    const interval = setInterval(() => {
+    cooldownIntervalRef.current = setInterval(() => {
       setSeconds((prev) => {
         if (prev <= 1) {
-          clearInterval(interval);
+          clearInterval(cooldownIntervalRef.current);
+          cooldownIntervalRef.current = null;
           setCooldown(false);
           setActiveButton(null);
           return 0;
@@ -158,6 +174,10 @@ function StaffServicePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Status: " + res.status);
 
       const data = await res.json();
@@ -195,9 +215,13 @@ function StaffServicePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Status: " + res.status);
 
-      const data = await res.json();
+      await res.json();
       toast("Navbat qayta chaqirildi");
     } catch (error) {
       toast("Navbat yoq");
@@ -222,10 +246,7 @@ function StaffServicePage() {
   // logout dapdown
   const [logout, setLogout] = useState(false);
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
-    localStorage.removeItem(CURRENT_QUEUE_KEY);
+    clearAuth();
     navigate("/");
   };
 
@@ -238,6 +259,10 @@ function StaffServicePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Status: " + res.status);
 
       const data = await res.json();
@@ -259,6 +284,10 @@ function StaffServicePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Status: " + res.status);
 
       const data = await res.json();
@@ -284,6 +313,10 @@ function StaffServicePage() {
         },
       );
 
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) throw new Error("Status: " + res.status);
 
       toast("Navbat tugatildi");

@@ -17,7 +17,7 @@ function LoginPage() {
     if (token && role === "ROLE_OPERATOR") {
       navigate("/staff", { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
